@@ -1289,6 +1289,12 @@ let clear_close_on_exec ch =
   check_descriptor ch;
   Unix.clear_close_on_exec ch.fd
 
+external lwt_unix_is_close_on_exec : Unix.file_descr -> bool =
+  "lwt_unix_is_close_on_exec"
+let is_close_on_exec ch =
+  check_descriptor ch;
+  lwt_unix_is_close_on_exec ch.fd
+
 (* +-----------------------------------------------------------------+
    | Directories                                                     |
    +-----------------------------------------------------------------+ *)

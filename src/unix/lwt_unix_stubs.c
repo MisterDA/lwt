@@ -608,6 +608,18 @@ value lwt_unix_recv_notifications() {
 
 #if defined(LWT_ON_WINDOWS)
 
+CAMLprim value lwt_unix_is_close_on_exec(value fd) {
+  CAMLparam1(fd);
+  HANDLE h = (Descr_kind_val(h) == KIND_HANDLE) ?
+    Handle_val(h) : (HANDLE)Socket_val(h);
+  DWORD flags = 0;
+  if (! GetHandleInformation(h, &flags)) {
+    win32_maperr(GetLastError());
+    uerror("is_close_on_exec", Nothing);
+  }
+  CAMLreturn(Val_bool(! (flags & HANDLE_FLAG_INHERIT)));
+}
+
 static void set_close_on_exec(SOCKET socket) {
   if (!SetHandleInformation(socket, HANDLE_FLAG_INHERIT, 0)) {
     win32_maperr(GetLastError());
@@ -661,6 +673,14 @@ value lwt_unix_init_notification() {
 }
 
 #else /* defined(LWT_ON_WINDOWS) */
+
+CAMLprim value lwt_unix_is_close_on_exec(value fd) {
+  CAMLparam1(fd);
+  int flags = fcntl(Int_val(fd), F_GETFD, 0);
+  if (flags == -1)
+    uerror("is_close_on_exec", Nothing);
+  CAMLreturn(Val_bool(flags & FD_CLOEXEC));
+}
 
 static void set_close_on_exec(int fd) {
   int flags = fcntl(fd, F_GETFD, 0);

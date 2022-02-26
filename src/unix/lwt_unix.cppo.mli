@@ -88,7 +88,7 @@ val with_timeout : float -> (unit -> 'a Lwt.t) -> 'a Lwt.t
         Lwt.pick [Lwt_unix.timeout d; f ()]
       ]}
 
-      @raise Timeout 
+      @raise Timeout
       The promise [with_timeout d f] raises {!Timeout} if the promise returned
       by [f ()] takes more than [d] seconds to resolve. *)
 
@@ -701,6 +701,9 @@ val set_close_on_exec : file_descr -> unit
 
 val clear_close_on_exec : file_descr -> unit
   (** Wrapper for [Unix.clear_close_on_exec] *)
+
+val is_close_on_exec : file_descr -> bool
+  (** Returns whether [fd] is close-on-exec. *)
 
 (** {2 Directories} *)
 
